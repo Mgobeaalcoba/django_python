@@ -118,6 +118,8 @@ py manage.py runserver
 
 Nos dirigimos a http://127.0.0.1:8000/ y podremos ver nuestro servidor de desarrollo ya construido y funcionando aún sin contenido. Pero listo para que lo editemos. 
 
+Al iniciar nuestro servidor Django va a crear una base de datos sqlite3 dentro del proyecto para poder almacenar allí los datos que correspondan. 
+
 **IMPORTANTE**: La variable DEBUG en el archivo setting.py debe ser TRUE mientras estemos trabajando en modo desarrollo pero en cuanto llevemos nuestro proyecto a producción debemos asegurarnos antes que DEBUG pase a FALSE.
 
 --------------------------------------
@@ -132,5 +134,50 @@ Algunas cosas que tenemos que saber antes de empezar en django:
 Premios platzi app va a ser nuestro proyecto y dentro de ella vamos a construir distintas aplicaciones: "polls"
 
 Trabajar con aplicaciones nos sirve para poder modularizar o componentizar nuestras aplicaciones, para poder trasladarlas de un proyecto a otro de forma muy simple. 
+
+1. Dicho lo anterior, el comando inicial de django lo usamos para crear un proyecto pero ahroa debemos crear nuestra primer aplicación. La misma se debe crear dentro de la carpeta del proyecto que iniciamos anteriormente así: 
+
+```bash
+py manage.py startapp polls
+```
+Esto creo un paquete/carpeta "polls" dentro de la carpeta raiz de nuestro proyecto con una estructura de archivos que ya vamos a ir viendo en el transcurso de este proyecto. 
+
+Ahora solo vamos a trabajar sobre el archivo views.py para crear un hola mundo. 
+
+1. premiosplatziapp\premiosplatziapp\urls.py
+
+```py
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('polls/', include("polls.urls")) # Importo todos los paths de la app "polls"
+]
+```
+
+2. premiosplatziapp\polls\views.py
+
+```py
+from django.shortcuts import render
+from django.http import HttpResponse
+
+# Create your views here.
+
+def index(request):
+    return HttpResponse("Hello World")
+```
+
+3. Creo un archivo dentro del paquete "polls" llamado urls.py que voy a dejar así: 
+
+```py
+from django.urls import path
+
+from . import views
+
+urlpatterns = [
+    path("", views.index, name="index")
+]
+```
 
 

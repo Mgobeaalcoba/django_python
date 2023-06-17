@@ -18,8 +18,9 @@ Including another URLconf
 # Contiene todas las URL por las que va a funcionar nuestro proyecto. 
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('polls/', include("polls.urls")), # Importo todos los paths de la app "polls"
 ]

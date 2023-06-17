@@ -124,4 +124,13 @@ Nos dirigimos a http://127.0.0.1:8000/ y podremos ver nuestro servidor de desarr
 
 ## Iniciando el proyecto Premios Platzi App
 
+Algunas cosas que tenemos que saber antes de empezar en django: 
+
+- Proyectos: conjuntos de aplicaciones. Instagram por ej es un proyecto formado por varias aplicaciones. 
+- Aplicaciones. Ejemplo de aplicaciones de instagram: "feed", "stories", "messages", etc. 
+
+Premios platzi app va a ser nuestro proyecto y dentro de ella vamos a construir distintas aplicaciones: "polls"
+
+Trabajar con aplicaciones nos sirve para poder modularizar o componentizar nuestras aplicaciones, para poder trasladarlas de un proyecto a otro de forma muy simple. 
+
 

@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+# Contiene toda la información sobre la configuración de nuestro proyecto
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -70,7 +72,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'premiosplatziapp.wsgi.application'
 
 
-# Database
+# Database. Aqu
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
@@ -103,9 +105,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en-us' # Lengua en la que está codeada nuestro proyecto. Debería ser siempre Ingles como buena practica
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'UTC' # Definimos el timezone de nuestro proyecto. Para el caso de Arg sería UTC-3
 
 USE_I18N = True
 

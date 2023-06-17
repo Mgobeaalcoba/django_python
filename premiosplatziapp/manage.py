@@ -3,6 +3,8 @@
 import os
 import sys
 
+# Nos muestra a nosotros, owners del proyecto diferentes comandos que tenemos 
+# a disposición para hacer que el proyecto funcione. 
 
 def main():
     """Run administrative tasks."""

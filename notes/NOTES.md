@@ -80,3 +80,30 @@ Este comando va a armar toda una estructura para nuestro proyecto con el nombre 
 
 ## Explorando los archivos que creó Django
 
+- manage.py
+
+Nos muestra a nosotros, owners del proyecto diferentes comandos que tenemos a disposición para hacer que el proyecto funcione. 
+
+- premiosplatziapp/__init__.py
+
+Archivo clasico de python que nos indica que una carpeta es un paquete
+
+- premiosplatziapp/asgy.py & premiosplatziapp/wsgi.py
+
+Archivo de django que nos permite hacer el deploy de una aplicación
+
+Nos quedan los dos que son los mas importantes y que vamos a modificar mucho mientras estemos desarrollando el proyecto: 
+
+- **premiosplatziapp/settings.py**
+
+Contiene toda la información sobre la configuración de nuestro proyecto
+
+- **premiosplatziapp/urls.py**
+
+Contiene todas las URL por las que va a funcionar nuestro proyecto. 
+
+--------------------------------------------
+
+## El servidor de desarrollo
+
+

@@ -113,6 +113,11 @@ Django nos permite trabajar con un servidor de desarrollo que nos facilita el tr
 1. Encendemos el servidor de desarrollo: 
 
 ```bash
+python3 manage.py runserver
+```
+ó
+
+```bash
 py manage.py runserver
 ```
 
@@ -180,4 +185,50 @@ urlpatterns = [
 ]
 ```
 
+-------------------------------------------
 
+## Ajustando el archivo settings.py
+
+- premiosplatziapp/premiosplatziapp/settings.py
+
+1. **DATABASES**: 
+
+```py
+# Database. Acá podremos configurar con que base de datos vamos a trabajar. Por default Django trabaja con sqllite3
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3', # Variantes: mysql, postgresql, oracle, etc. Todas relacionales.
+        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'USER'
+        # 'PASSWORD'
+    }
+}
+```
+
+2. **TIME_ZONE**: 
+
+```py
+TIME_ZONE = 'America/Argentina/Buenos_Aires' # Definimos el timezone de nuestro proyecto. Para el caso de Arg sería UTC-3 pero se debe colocar con el codigo de timezone de arriba.
+
+# De acá debemos sacar el timezone para el proyecto. Segunda columna: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+```
+
+3. **INSTALLED_APPS**: Django ya cuenta con una serie de apps que por default le asigna a todos los proyectos: admin, auth, contenttypes, sessions, messages, staticfiles. A este deberíamos sumarle la app que ya creamos "polls"
+
+```py
+## Apps que trae Django por default.
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+]
+```
+
+----------------------------------------
+
+## ¿Que es ORM? ¿Que es un modelo? 

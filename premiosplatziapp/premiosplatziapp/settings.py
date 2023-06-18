@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+## Apps que trae Django por default.
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -72,13 +73,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'premiosplatziapp.wsgi.application'
 
 
-# Database. Aqu
+# Database. Acá podremos configurar con que base de datos vamos a trabajar. Por default Django trabaja con sqllite3
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.db.backends.sqlite3', # Variantes: mysql, postgresql, oracle, etc. Todas relacionales.
         'NAME': BASE_DIR / 'db.sqlite3',
+        # 'USER'
+        # 'PASSWORD'
     }
 }
 
@@ -107,7 +110,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us' # Lengua en la que está codeada nuestro proyecto. Debería ser siempre Ingles como buena practica
 
-TIME_ZONE = 'UTC' # Definimos el timezone de nuestro proyecto. Para el caso de Arg sería UTC-3
+TIME_ZONE = 'America/Argentina/Buenos_Aires' # Definimos el timezone de nuestro proyecto. Para el caso de Arg sería UTC-3
+
+# De acá debemos sacar el timezone para el proyecto. Segunda columna: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 USE_I18N = True
 

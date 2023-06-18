@@ -507,3 +507,50 @@ Type "help", "copyright", "credits" or "license" for more information.
 ## Filtrando los objetos creados desde la consola interactiva:
 
 Tenemos dos metodos especiales que nos brinda Django que nos permitiran hacer busquedas dentro de nuestras tablas. 
+
+1- Question.objects.get(pk=1): En este ejemplo estamos trajendo los elementos de mi QuerySet cuya primary key sea igual a 1 
+
+```bash
+>>> Question.objects.all()
+<QuerySet [<Question: ¿Cual es el mejor curso de Platzi?>, <Question: ¿Cual es el mejor profesor de Platzi?>, <Question: ¿Cual es la mejor escuela de Platzi?>]>
+>>> Question.objects.get(pk=1)
+<Question: ¿Cual es el mejor curso de Platzi?>
+```
+
+Otro ejemplo: Question.objects.get(pub_date__year=2023) con el operador de busqueda de Django __ podemos definir dentro de un datetime que parte del mismo vamos a usar para buscar. En este ejemplo estamos buscando por año: 
+
+```bash
+>>> Question.objects.get(pub_date__year=2023)
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+  File "/home/mgobea/develop/python/django_python/venv/lib/python3.10/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/home/mgobea/develop/python/django_python/venv/lib/python3.10/site-packages/django/db/models/query.py", line 640, in get
+    raise self.model.MultipleObjectsReturned(
+polls.models.Question.MultipleObjectsReturned: get() returned more than one Question -- it returned 3!
+>>> Question.objects.get(pub_date__year=timezone.now().year)
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+  File "/home/mgobea/develop/python/django_python/venv/lib/python3.10/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/home/mgobea/develop/python/django_python/venv/lib/python3.10/site-packages/django/db/models/query.py", line 640, in get
+    raise self.model.MultipleObjectsReturned(
+polls.models.Question.MultipleObjectsReturned: get() returned more than one Question -- it returned 3!
+```
+
+En realidad el metodo get no nos sirve para esto. Dado que get es un metodo para obtener un UNICO resultado de nuestra consulta y en este aso estariamos obteniendo 3 resultados. Por lo que debemos recurrir a otro metodo de Django llamado "filter"
+
+```bash
+>>> Question.objects.filter(pub_date__year=timezone.now().year)
+<QuerySet [<Question: ¿Cual es el mejor curso de Platzi?>, <Question: ¿Cual es el mejor profesor de Platzi?>, <Question: ¿Cual es la mejor escuela de Platzi?>]>
+```
+
+Podemos ver cuantos tipos de filtros usando el double-underscore "__" existen en la docu oficial de Django en esta sección: 
+
+https://docs.djangoproject.com/en/3.2/topics/db/queries/#field-lookups-intro
+
+------------------------------------------------
+
+## El metodo filter de Django
+
+

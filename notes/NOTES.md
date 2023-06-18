@@ -232,3 +232,19 @@ INSTALLED_APPS = [
 ----------------------------------------
 
 ## ¿Que es ORM? ¿Que es un modelo? 
+
+**ORM = Object Relational Mapping** nos explica como yo puedo relacionar, por un lado la estructura de una b**ase de datos relacional** (RDB) con, por el otro, la **programación orientada a objetos**
+
+Ciertas librerías y frameworks me permiten replicar la estructura de una RBD con POO. Una de ellas es Django. 
+
+En RDB cada entidad se corresponde en una tabla. 
+En POO cada entidad se corresponde con un archivo.py
+
+Ese archivo se va a llamar **model y se crea con clases de POO**
+
+Cada tabla tiene columnas con atributos de mi entidad, pensemos en users: PK, username, password, fecha de creación, etc. Las columnas al trabajar con un ORM se corresponden con los atributos de nuestras clases. Cada una de las columnas también se define en RDB con un tipo de datos, al igual en nuestra clase también definiremos a cada uno de los atributos con un tipo de dato que son clases también a su vez. 
+
+-------------------------------------------
+
+## Creando un diagrama entidad-relación para nuestro proyecto
+

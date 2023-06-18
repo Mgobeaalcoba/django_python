@@ -577,3 +577,90 @@ El ultimo ejemplo en realidad es de uso de **exclude** que es una herramienta de
 ---------------------------------------------
 
 ## Accediendo al conjunto de respuestas
+
+1. ¿Como podría por ejemplo traerme a "q" la primer Question guardada y a la cual ya no puedo acceder por "q" dado que cerré y volví a abrir mi consola intereactiva? 
+
+```bash
+>>> q = Question.objects.get(pk=1)
+>>> q
+<Question: ¿Cual es el mejor curso de Platzi?>
+```
+
+2. Si, como en mi caso, Question tiene una relación de "1 a muchas" con Choice, entonces yo puedo acceder a todas las respuestas posibles para una de mis preguntas usando un metodo que viene de mi clase heredada "Model" y que sirve para esto: 
+
+```bash
+>>> q.choice_set.all()
+<QuerySet []>
+```
+En este caso mi QuerySet está vacio dado que aún no tengo respuesta para mi pregunta. 
+
+3. Creo mis respuestas a partir de cada una de las preguntas a las que responden esas opciones o choices. Para esto debemos usar el siguiente método también heredado de la clase "Model" de Django: 
+
+```bash
+>>> q.choice_set.create(choice_text="Curso Básico de Python", votes=0)
+<Choice: Curso Básico de Python>
+```
+
+La alternativa hubiese sido crear un objeto choice y asignarle una Foreign Key manualmente así: 
+
+```bash
+>>> c2 = Choice(question=q, choice_text="Nuevo Curso de Programación Básica", votes=0)
+>>> q.choice_set.all()
+<QuerySet [<Choice: Curso Básico de Python>]>
+>>> c2.save()
+>>> q.choice_set.all()
+<QuerySet [<Choice: Curso Básico de Python>, <Choice: Nuevo Curso de Programación Básica>]>
+```
+
+Es importante entender que si creamos nuestra choice de esta forma debemos salvar la variable en nuestra tabla con el método "save()" antes de poder consultarla con choice_set.all()
+
+Si luego de tener muchas opciones, en lugar de ver el listado de las mismas nos interesa saber solamente la cantidad de objetos creados de nuestro modelo entonces podemos hacerlo con el siguiente método: **q.choice_set.count()**
+
+```bash
+>>> q.choice_set.create(choice_text="Curso Profesinal de Git y Github", votes=0)
+<Choice: Curso Profesinal de Git y Github>
+>>> q.choice_set.create(choice_text="Curso de Fundamentos de Ingeniería de Software", votes=0)
+<Choice: Curso de Fundamentos de Ingeniería de Software>
+>>> q.choice_set.create(choice_text="Curso de Terminal de Comandos", votes=0)
+<Choice: Curso de Terminal de Comandos>
+>>> q.choice_set.all()
+<QuerySet [<Choice: Curso Básico de Python>, <Choice: Nuevo Curso de Programación Básica>, <Choice: Curso Profesinal de Git y Github>, <Choice: Curso de Fundamentos de Ingeniería de Software>, <Choice: Curso de Terminal de Comandos>]>
+>>> q.choice_set.count()
+5
+```
+Basicamente, estos métodos nos permite evitarnos que tengamos que consultar todo esto a traves de sqlite3 con SQL sintax. Lo cual también sería posible. Ejemplo: 
+
+```bash
+17:10:07 👽 with 🤖 mgobea 🐶 in python/django_python/premiosplatziapp via django_python sqlite3 db.sqlite3
+SQLite version 3.37.2 2022-01-06 13:25:41
+Enter ".help" for usage hints.
+
+sqlite> .databases
+main: /home/mgobea/develop/python/django_python/premiosplatziapp/db.sqlite3 r/w
+
+sqlite> .tables
+auth_group                  django_admin_log
+auth_group_permissions      django_content_type
+auth_permission             django_migrations
+auth_user                   django_session
+auth_user_groups            polls_choice
+auth_user_user_permissions  polls_question
+
+sqlite> SELECT * FROM polls_question;
+1|¿Cual es el mejor curso de Platzi?|2023-06-18 01:28:11.363189
+2|¿Cual es el mejor profesor de Platzi?|2023-06-18 15:45:55.663639
+3|¿Cual es la mejor escuela de Platzi?|2023-06-18 16:11:10.714535
+
+sqlite> SELECT * FROM polls_choice;
+1|Curso Básico de Python|0|1
+2|Nuevo Curso de Programación Básica|0|1
+3|Curso Profesinal de Git y Github|0|1
+4|Curso de Fundamentos de Ingeniería de Software|0|1
+5|Curso de Terminal de Comandos|0|1
+```
+---------------------------------------
+
+## El administrador de Django: 
+
+
+

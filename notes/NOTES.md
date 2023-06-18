@@ -701,6 +701,52 @@ Y ahora sí podremos desde el admin ver y administrar los objetos de nuestro mod
 
 <img src="../images/django_admin_models.png">
 
+---------------------------
+
+## ¿Que son las views o vistas? 
+
+Las vistas son las interfaces HTML que mostramos a nuestros usuarios cuando ellos acceden a alguno de nuestros endpoints para interactuar con nuestra Web App. 
+
+Django utiliza una arquitectura de trabajo que se conoce como **"Model Template View" o "MTV"**. 
+
+En Django voy a trabajar: 
+
+1. Creando Modelos
+2. Esos Modelos los voy a mostrar en un Template
+3. Y estas Templates van a funcionar a raiz de determinadas Views.
+
+Recordemos un poco entonces: 
+
+- ¿Cual es el objetivo de Django? 
+
+Crear aplicaciones web o Web App´s al igual que Flask por ejemplo. 
+
+- ¿Como está compuesta una aplicación web? 
+
+Se compone de dos partes fundamentales:
+    1. Un frontend (HTML, CSS y JavaScript)
+    2. Un backend (Django, Flask y FastAPI)
+
+Ahora bien, Django (y Flask también) es un framework tan potente que nos permite trabajar el backend de nuestra aplicación web pero también el frontend de nuestra aplicación web. 
+
+Django Web App: un backend y un frontend que va a funcionar ambos a raiz de Django.
+
+Sin embargo existe algo aún mas avanzado que es Django Rest Framework que es un aplicativo de Django que nos permite desarrollar solamente el backedn y el Frontend si se lo dejamos ya a otros equipos. 
+
+El backend en Django se va a escribir en "**views**" y el frontend se va a escribir en "**templates**" 
+
+Una **view** es una pagina web que tiene una funcionalidad (que va a ser su backend) y una cara visible (que va a ser su frontend). El ultimo se expresa como templates. 
+
+Una view puede ser una función o puede ser una clase. Cualquier de los dos opciones son validas: 
+1. Function Based Views (View basada en funciones)
+2. Generic Views (View basada en clases)
+
+Cada vez que yo construyo una pagina tengo que pensar que voy a necesitar una view para esa pagina.
+
+------------------------------------------
+
+## Creando vistas para la aplicación
+
 
 
 

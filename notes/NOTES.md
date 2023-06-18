@@ -662,5 +662,45 @@ sqlite> SELECT * FROM polls_choice;
 
 ## El administrador de Django: 
 
+Django posee un administrador de datos único en comparación con Flask y FastApi que lo hacen muy potente en el mercado. 
+
+1. Primero debemos crear por consola un superuser: 
+
+```bash
+17:20:23 👽 with 🤖 mgobea 🐶 in python/django_python/premiosplatziapp via django_python …
+➜ python3 manage.py createsuperuser
+Username (leave blank to use '######'):
+Email address: ############@gmail.com
+Password:
+Password (again):
+Superuser created successfully.
+```
+Este comando es muy importante no compartir su contenido con nadie dado que cualquier persona con acceso a este superuser podría tirar abajo un proyecto Django.
+
+2. Ahora con este user puedo acceder al endpoint de mi proyecto que teniamos desde el principio y se llamaba "/admin" accediendo a:
+
+http://127.0.0.1:8000/admin
+
+3. Me logueo allí con las credenciales creadas en el paso 1. 
+
+<img src="../images/django_admin.png">
+
+Listo! Puedo acceder al front de admin de mi proyecto para crear grupos y usuarios y asignarle permisos en especifico.
+
+4. Ojo! Para que el admin pueda acceder también a nuestros modelos debemos declarar los mismos en el archivo admin.py de cada app. En este caso estamos hablando de la única app que tenemos creada por el momento que es "polls"
+
+```py
+from django.contrib import admin
+from .models import Question, Choice
+
+# Register your models here.
+
+admin.site.register([Question, Choice])
+```
+Y ahora sí podremos desde el admin ver y administrar los objetos de nuestro modelo
+
+<img src="../images/django_admin_models.png">
+
+
 
 

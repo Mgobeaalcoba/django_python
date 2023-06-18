@@ -517,6 +517,8 @@ Tenemos dos metodos especiales que nos brinda Django que nos permitiran hacer bu
 <Question: ¿Cual es el mejor curso de Platzi?>
 ```
 
+En este caso está trayendo un unico elemento de tipo objeto
+
 Otro ejemplo: Question.objects.get(pub_date__year=2023) con el operador de busqueda de Django __ podemos definir dentro de un datetime que parte del mismo vamos a usar para buscar. En este ejemplo estamos buscando por año: 
 
 ```bash
@@ -553,4 +555,25 @@ https://docs.djangoproject.com/en/3.2/topics/db/queries/#field-lookups-intro
 
 ## El metodo filter de Django
 
+Para obtener mas de 1 valor en una consulta a nuestra base de datos debemos usar entonces el metodo .objects.filter(parametro de comparación)
 
+En el caso de filter por mas que traiga un solo elemento va a ser un iterable de tipo QuerySet con 1 o mas elementos dentro. 
+
+Algunos ejemplos de uso de **filter**: 
+
+```bash
+>>> Question.objects.filter(question_text__startswith="¿Cual")
+<QuerySet [<Question: ¿Cual es el mejor curso de Platzi?>, <Question: ¿Cual es el mejor profesor de Platzi?>, <Question: ¿Cual es la mejor escuela de Platzi?>]>
+>>> Question.objects.filter(pub_date__year=timezone.now().year)
+<QuerySet [<Question: ¿Cual es el mejor curso de Platzi?>, <Question: ¿Cual es el mejor profesor de Platzi?>, <Question: ¿Cual es la mejor escuela de Platzi?>]>
+>>> Question.objects.filter(question_text__contains="el mejor")
+<QuerySet [<Question: ¿Cual es el mejor curso de Platzi?>, <Question: ¿Cual es el mejor profesor de Platzi?>]>
+>>> Question.objects.exclude(question_text__contains="el mejor")
+<QuerySet [<Question: ¿Cual es la mejor escuela de Platzi?>]>
+```
+
+El ultimo ejemplo en realidad es de uso de **exclude** que es una herramienta de Django para buscar aquellos que no cumplan una condición declarada. 
+
+---------------------------------------------
+
+## Accediendo al conjunto de respuestas

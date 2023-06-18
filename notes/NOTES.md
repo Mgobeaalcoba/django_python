@@ -351,3 +351,85 @@ Listo! Ya tenemos los modelos creados en models.py y también las bases de datos
 
 -----------------------------------
 
+## La consola interactiva de Django
+
+Introducción: Python tiene una consola interactiva a la cual accedemos con python3 nuestra bash. 
+
+- Consola Python: 
+
+```py
+21:52:25 👽 with 🤖 mgobea 🐶 in develop/python/django_python via django_python …
+➜ python3
+Python 3.10.6 (main, Mar 10 2023, 10:55:28) [GCC 11.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> print("hola mundo")
+hola mundo
+>>> numero_1 = 5
+>>> numero_2 = 10
+>>> numero_1 + numero_2
+15
+```
+
+- Consola Django: nos posibilita interactuar con nuestros archivos. 
+
+1. Para entrar correr en bash: 
+
+```bash
+python3 manage.py shell
+```
+Es importante que estés ubicado en la raiz de un proyecto Django para que funcione
+
+2. Al abrir se va a ver casi igual que la consola de python, pero va a decir abajo entre parentesis (InteractiveConsole) que nos va a dar acceso al proyecto...
+
+IMPORTANTE: Si modificamos el archivo models.py es necesario que volvamos a correr los dos comandos para que el ORM modifique nuestras tablas: 
+
+```bash
+python3 manage.py makemigrations polls
+
+python3 manage.py migrate
+```
+
+Ahora si al entrar a la interactive console de Django vamos a poder importar las clases de nuestro modelo y usar el atributo objects.all() que nos permite traer todos los objetos que se crearon de nuestra clase: 
+
+```bash
+22:09:33 👽 with 🤖 mgobea 🐶 in python/django_python/premiosplatziapp via django_python …
+➜ python3 manage.py shell
+Python 3.10.6 (main, Mar 10 2023, 10:55:28) [GCC 11.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+>>> from polls.models import Choice, Question
+>>> Question.objects.all()
+<QuerySet []>
+>>> Choice.objects.all()
+<QuerySet []>
+>>>
+```
+
+En el ejemplo de arriba ⬆️ nos retorna un objeto QuerySet vacio dado que por el momento no hemos creado objetos de este tipo... 
+
+Voy a importar de django.utils el modulo timezone para poder usar las clases de horarios con zonas horarias incorporadas y generar objetos dentro de mi consola interactiva de Django... 
+
+```bash
+22:25:57 👽 with 🤖 mgobea 🐶 in python/django_python/premiosplatziapp via django_python …
+➜ python3 manage.py shell
+Python 3.10.6 (main, Mar 10 2023, 10:55:28) [GCC 11.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+>>> from polls.models import Choice, Question
+>>> Question.objects.all()
+<QuerySet []>
+>>> Choice.objects.all()
+<QuerySet []>
+>>> from django.utils import timezone
+>>> q = Question(question_text="¿Cual es el mejor curso de Platzi?", pub_date=ti
+mezone.now())
+>>> q.save()
+```
+
+En q guarde un objeto de tipo Question() y con q.save() estoy guardano ese objeto en mis bases de datos. 
+
+---------------------------------------
+
+## El metodo __str__
+
+

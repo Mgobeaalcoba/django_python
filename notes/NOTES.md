@@ -266,3 +266,88 @@ Cada tabla tiene columnas con atributos de mi entidad, pensemos en users: PK, us
 
 # Creando los modelos Question y Choice en codigo: 
 
+Vamos a crear nuestras tablas diseñadas arriba en el diagram entidad-relación pero con el ORM de Django. 
+
+1. Será en el archivo models.py de nuestra app polls donde trabajaremos todos lo relacionado a datos de nuestra aplicación. 
+
+```py
+from django.db import models
+
+# Create your models here.
+
+# Django transformara nuestras clases a tablas en nuestra base de datos sqlite3
+class Question(models.Model):
+    # Definimos los atributos de esta clase que se corresponden con las columnas de la tabla Question: 
+    # id no es necesario dado que Django lo genera solo de forma autoincremental
+    question_text = models.CharField(max_length=200)
+    pub_date = models.DateTimeField(name="date published")
+
+# Segundo modelo Choices
+class Choices(models.Model):
+    # id
+    question = models.ForeignKey(Question, on_delete=models.CASCADE) # Llave foranea que establece la relación 1 - muchos entre mis models
+    # El on_delete=models.CASCADE establece que si se borra una Question se deben borrar todas las choices de esa question
+    choice_text = models.CharField(max_length=200)
+    votes = models.IntegerField(default=0)
+```
+
+2. Establezco en settings.py que la app que estamos construyendo es parte del proyecto así: 
+
+```py
+INSTALLED_APPS = [
+    # Apps propias
+    'polls.apps.PollsConfig',
+    # Apps de Django
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    # Apps de terceros si hubieses
+]
+```
+
+3. Creo dentro de polls/migrations el archivo con la estructura que tiene que tener nuestra base de datos con el siguiente comando en la raiz del proyecto: 
+
+```bash
+21:41:23 👽 with 🤖 mgobea 🐶 in python/django_python/premiosplatziapp via django_python …
+➜ python3 manage.py makemigrations polls
+Migrations for 'polls':
+  polls/migrations/0001_initial.py
+    - Create model Question
+    - Create model Choices
+```
+4. Ejecuto el ORM de Django para crear en mi base de datos sqlite3 mis tablas. Una por cada modelo. Esto lo hago con el siguiente comando también desde la raiz del proyecto: 
+
+```bash
+21:42:05 👽 with 🤖 mgobea 🐶 in python/django_python/premiosplatziapp via django_python …
+➜ python3 manage.py migrate
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, polls, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying polls.0001_initial... OK
+  Applying sessions.0001_initial... OK
+```
+
+Listo! Ya tenemos los modelos creados en models.py y también las bases de datos creadas en sqlite3!!!
+
+-----------------------------------
+

@@ -34,12 +34,16 @@ ALLOWED_HOSTS = []
 
 ## Apps que trae Django por default.
 INSTALLED_APPS = [
+    # Apps propias
+    'polls.apps.PollsConfig',
+    # Apps de Django
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Apps de terceros si hubieses
 ]
 
 MIDDLEWARE = [

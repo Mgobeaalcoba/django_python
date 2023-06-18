@@ -432,4 +432,78 @@ En q guarde un objeto de tipo Question() y con q.save() estoy guardano ese objet
 
 ## El metodo __str__
 
+Cuando desde la consola interactiva de Django tenemos objetos creados y queremos conocerlos nos vamos a encontrar que al acceder al listado de objetos vamos a ver el nombre de los mismos pero no vamos a ver las descripciones. 
 
+```bash
+>>> q2 = Question(question_text="¿Cual es el mejor profesor de Platzi?", pub_dat
+e=timezone.now())
+>>> q2
+<Question: Question object (None)>
+>>> Question.objects.all()
+<QuerySet [<Question: Question object (1)>]>
+>>> q2.save()
+>>> Question.objects.all()
+<QuerySet [<Question: Question object (1)>, <Question: Question object (2)>]>
+>>> q2.question_text
+'¿Cual es el mejor profesor de Platzi?'
+>>> q2.pub_date
+datetime.datetime(2023, 6, 18, 15, 45, 55, 663639, tzinfo=datetime.timezone.utc)
+```
+
+Como vemos el Question.objects.all() no es util para conocer todas nuestras preguntas. Para que lo sea tenemos que sumarle a nuestros modelos el metodo "dunderstring" o __str__ que permitirá retornar las preguntas, su texto en lugar del objeto completo. 
+
+```py
+import datetime
+
+from django.db import models
+from django.utils import timezone
+
+# Create your models here.
+
+# Django transformara nuestras clases a tablas en nuestra base de datos sqlite3
+class Question(models.Model):
+    # Definimos los atributos de esta clase que se corresponden con las columnas de la tabla Question: 
+    # id no es necesario dado que Django lo genera solo de forma autoincremental
+    question_text = models.CharField(max_length=200)
+    pub_date = models.DateTimeField(name="pub_date")
+
+    def __str__(self):
+        return self.question_text
+    
+    def was_published_recently(self):
+        return self.pub_date >= timezone.now()  - datetime.timedelta(days=1)
+
+# Segundo modelo Choices
+class Choice(models.Model):
+    # id
+    question = models.ForeignKey(Question, on_delete=models.CASCADE) # Llave foranea que establece la relación 1 - muchos entre mis models
+    # El on_delete=models.CASCADE establece que si se borra una Question se deben borrar todas las choices de esa question
+    choice_text = models.CharField(max_length=200)
+    votes = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.choice_text
+
+## Cada vez que haga un cambio en los modelos tengo que ejecutar los dos comandos para activar y trabajar con el ORM
+```
+
+Cuando los cambios en el modelo son sobre los metodos y no sobre los atributos no es necesario volver a correr el makemigrations polls y el migrate. 
+
+Ahora al volver a abrir la consola interactiva de Django vamos a poder ver el contenido de nuestras preguntas al usar el metodo de nuestra clase heredada models .objects.all()
+
+```bash
+13:02:41 👽 with 🤖 mgobea 🐶 in python/django_python/premiosplatziapp via django_python took 20m 50.3s …
+➜ python3 manage.py shell
+Python 3.10.6 (main, Mar 10 2023, 10:55:28) [GCC 11.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+>>> from polls.models import Question, Choice
+>>> Question.objects.all()
+<QuerySet [<Question: ¿Cual es el mejor curso de Platzi?>, <Question: ¿Cual es el mejor profesor de Platzi?>]>
+>>>
+```
+----------------------------------
+
+## Filtrando los objetos creados desde la consola interactiva:
+
+Tenemos dos metodos especiales que nos brinda Django que nos permitiran hacer busquedas dentro de nuestras tablas. 

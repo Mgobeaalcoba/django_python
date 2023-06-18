@@ -747,6 +747,55 @@ Cada vez que yo construyo una pagina tengo que pensar que voy a necesitar una vi
 
 ## Creando vistas para la aplicación
 
+1. Para crear views, como suena lógico, el primer paso es dirigirse al archivo de nuestra app llamado **views.py**
+
+2. Las vistas o views siempre deben recibir un objeto de django request como parametro. Dado que el acceso a una pagina web no es mas que el resultado de una request o pedido de un cliente para acceder a determinada información. 
+
+```py
+from django.shortcuts import render
+from django.http import HttpResponse
+
+# Create your views here.
+
+## 1° Function Base View creada en esta app
+def index(request):
+    return HttpResponse("Estás en la página principal de Premios Platzi App")
+
+## 2° View: Nos muestra una pregunta y el detalle de las opciones de respuesta para esa pregunta
+def detail(request, question_id):
+    return HttpResponse(f"Estás viendo la pregunta número {question_id}")
+
+## 3° View: Cantidad de votos que tiene cada una de las respuestas de nuestras preguntas
+def results(request, question_id):
+    return HttpResponse(f"Estás viendo los resultados de la pregunta número {question_id}")
+
+## 4° View: La vamos a usar para votar pero no va a tener un frontend propio.
+def vote(request, question_id):
+    return HttpResponse(f"Estas votando a la pregunta número {question_id}")
+```
+
+3. Modificamos el archivos urls.py de nuestra app para incorporar las nuevas rutas que hemos creado como views: 
+
+```py
+from django.urls import path
+
+from . import views
+
+urlpatterns = [
+    path("", views.index, name="index"),
+    path("<int:question_id>/", views.detail, name="detail"),
+    path("<int:question_id>/results/", views.results, name="results"),
+    path("<int:question_id>/vote/", views.vote, name="vote"),
+]
+```
+Con "<int:question_id>" podemos pasar a traves de nuestra URL parametros variables en Django.
+
+Listo! ya podemos probar nuestras views en un navegador. Por supuesto que por el momento son solo texto dado que no tienen un template asociado aún. 
+
+-----------------------------------
+
+## 
+
 
 
 

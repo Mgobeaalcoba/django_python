@@ -248,3 +248,21 @@ Cada tabla tiene columnas con atributos de mi entidad, pensemos en users: PK, us
 
 ## Creando un diagrama entidad-relación para nuestro proyecto
 
+- app polls (dos tablas):
+
+    - Questions (columnas/atributos): 
+        - id: int (Primary Key - PK)
+        - question_text: varchar
+        - pub_date: datetime
+    - Choices (columnas/atributos):
+        - id: int (Primary Key - PK)
+        - question: int (Llave foranea o foreign key -FK- que relaciona con el question id)
+        - choice_text: varchar
+        - votes: int
+
+    Questions se relaciona con Choices de forma 1 a muchas.
+
+----------------------------------------------
+
+# Creando los modelos Question y Choice en codigo: 
+

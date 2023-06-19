@@ -882,6 +882,12 @@ Re definida nuestra view debemos entonces construir el template que vamos a rend
 
 Listo ya tenemos renderada la segunda de nuestras views definidas. Aún falta el formato pero eso es algo que vamos a ver luego!!! 
 
+--------------------------------------
+
+## Utilizando la etiqueta url para evitar el hard coding
+
+
+
 
 
 

@@ -1175,6 +1175,145 @@ Adicionalmente debo cambiar el question_id por una variable de Django para reali
 
 ----------------------------------------
 
+# Django Intermedio!!!
+
+## ¿Que son los tests?
+
+Son funciones que verifican que tu codigo esté ejecutandose correctamente. 
+
+¿Por que hacer test? ¿Que ventajas tiene hacerlo de no hacerlo? 
+
+Cuando tu codigo tiene decenas o centenas de linea de codigo. Un error puede ser catastrofico si no es que lo has estado desarrollando de la mano con test´s que comprueben que cada porción del codigo haga lo que uno quiere que haga. Por eso es importante el testeo. Es una buena práctica y puede ahorrarnos mucho trabajo. 
+
+**¿Que ventajas tiene hacer test?**
+
+1. Nos permite darnos cuenta de errores que a simple vista no hubiesemos sido capaces de ver. 
+2. Le dan a nuestro codigo un aspecto mucho mas profesional y hace que otros desarrolladores quieran participar de nuestros proyectos. 
+3. Nos permiten trabajar en equipo. Con la ayuda de los test, alguien que hace una modificación en el código porque la creía pertinente va a poder verificar a ciencia cierta si efectivamente lo que hizo es una mejora o rompe la lógica de negocio de nuestro código. 
+
+**¿Cual es la mejor aproximación para hacer Testing de manera profesional?**
+
+A traves del **Test Driven Development** o **TDD**: significa que antes de escribir la pieza de código lo mejor es escribir el test 🤯💥💣
+
+El test se desarrolla antes de codear la lógica del negocio. 
+
+--------------------------------------
+
+## Escribiendo nuestro primer test
+
+1. Flujo mas usado, o común, para crear test para código ya escrito. Si bien arriba dijimos que es una buena práctica aplicar el TDD (es decir, hacer los test antes que la lógica del negocio) hay casos donde tendremos que diseñar pruebas o test para piezas de código ya escritas, e incluso escritas por otros developers. 
+
+**Ejemplo**. El método de nuestra clase Question "was_published_recently tiene un error que no es facilmente observable. Si por alguna razon ponemos como fecha de publicación de nuestra Question un datetime que corresponde al futuro nos va a devolver "true" y eso es un error. Dado que en el futuro aún no se publicó. 
+
+2. Comprobamos en la consola interactiva de Django lo que acabamos de señalar teoricamente: 
+
+```bash
+14:27:06 👽 with 🤖 mgobea 🐶 in python/django_python/premiosplatziapp via django_python took 6h 20m 39.9s …
+➜ python3 manage.py shell
+Python 3.10.6 (main, Mar 10 2023, 10:55:28) [GCC 11.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+
+>>> from polls.models import Question, Choice
+>>> import datetime
+>>> from django.utils import timezone
+
+>>> q = Question(question_text="¿Quién es el mejor Course Director de Platzi?", pub_date=timezone.now() + datetime.timedelta(days=30))
+
+>>> q
+<Question: ¿Quién es el mejor Course Director de Platzi?>
+
+>>> q.pub_date
+datetime.datetime(2023, 7, 19, 20, 40, 34, 940883, tzinfo=datetime.timezone.utc)
+
+>>> q.was_published_recently()
+True
+```
+Como vemos el método para una publicación creada con fecha 30 días en el futuro nos responde "true" en was_published_recently lo cual es un error conceptual. 
+
+3. Este error podría haberse descubierto y podría haberse resuelto antes si hubiesemos testeado este model con anterioridad. Pero bueno, nunca es tarde para hacer lo correcto por lo que vamos a hacerlo ahora: 
+
+- polls/tests.py (primer test)
+
+```py
+import datetime
+
+from django.test import TestCase
+from django.utils import timezone
+
+from .models import Question
+
+# Create your tests here.
+
+# Generalmente vamos a testear Modelos ó Vistas
+
+## Testing de Models: 
+class QuestionModelTest(TestCase):
+    ### Creamos un método por cada Test a ejecutar
+    def test_was_published_recently_with_future_question(self):
+        """
+        was_published_recently returns False for questions whose pub_date is in the future
+        """
+        time = timezone.now() + datetime.timedelta(days=30)
+        q = Question(question_text="¿Esta es una pregunta de Test?", pub_date=time)
+
+        self.assertIs(q.was_published_recently(), False)
+```
+
+Cada clase construida debe ser una batería de test para un Modelo o una función en particular. Y cada método de nuestra clase va a ser un test en particular de esa batería.
+
+Al correr esto por consola vemos también, como vimos en la consola interactiva de Django que el resultado es True para nuestro assert por lo que la prueba FALLA y esto nos señala que tenemos un error de lógica en nuestra aplicación si la comparamos con los resultados esperados en nuestros tests. 
+
+- consola: 
+
+```bash
+17:55:04 👽 with 🤖 mgobea 🐶 in python/django_python/premiosplatziapp via django_python …
+➜ python3 manage.py test
+Found 1 test(s).
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+F
+======================================================================
+FAIL: test_was_published_recently_with_future_question (polls.tests.QuestionModelTest)
+was_published_recently returns False for questions whose pub_date is in the future
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/mgobea/develop/python/django_python/premiosplatziapp/polls/tests.py", line 22, in test_was_published_recently_with_future_question
+    self.assertIs(q.was_published_recently(), False)
+AssertionError: True is not False
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)
+Destroying test database for alias 'default'...
+```
+
+Como vemos en el extracto de mí consola el comando para ejecutar los test en Django es, estando ubicado en la carpeta raiz del proyecto: 
+
+```bash
+python3 manage.py test
+```
+De la forma descripta arriba vamos a ejecutar todos los tests de todas nuestras app´s que en este caso es una sola. Pero si quieramos especificar los tests de que app queremos correr debemos hacer: 
+
+```bash
+python3 manage.py test polls
+```
+--------------------------------------------------------
+
+## Solucionando el error encontrado con nuestro Test
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

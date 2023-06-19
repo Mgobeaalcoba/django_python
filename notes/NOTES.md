@@ -886,7 +886,51 @@ Listo ya tenemos renderada la segunda de nuestras views definidas. Aún falta el
 
 ## Utilizando la etiqueta url para evitar el hard coding
 
+Buena práctica: Nunca deberiamos hardcodear un valor. Y sin embargo en index.html lo estamos haciendo con la dirección del endpoint al que redirige nuestro list element. 
 
+¿Cual sería el problema? Que sin en urls.py yo cambio la url de acceso a mi app, algo que tranquilamente podría ocurrir en un proyecto profesional, mis templates ya no van a cargar dado que están estructurados con el hardcodeo del endpoint de mi app. 
+
+Así como es un problema tener hardcodeado el nombre de nuestra app también lo es tener hardcodeado el path de nuestros endpoints porque también pueden cambiar. 
+
+Solución: Debo definir una variable de app_name en urls.py de nuestra app y relacionar nuestro archivo de urls.py con nuestro template para poder recurrir a nuestras variables en el mismo lo que logro usando la etiqueta "url" dentro de nuestros templates en lugar de armar la ruta de forma estatica. estos sucede porque Django lee y usa los name de nuestros path y el name de nuestra app para leer los valors de nuestro archivo urls.py
+
+1. Por arriba de nuestro archivo urls.py de la app en la que estamos trabajando debemos agregar: 
+
+- polls/urls.py
+
+```py
+from django.urls import path
+
+from . import views
+
+app_name = "polls" # Variable para evitar el hardcodeo en mi template
+
+urlpatterns = [
+    path("", views.index, name="index"),
+    path("<int:question_id>/", views.detail, name="detail"),
+    path("<int:question_id>/results/", views.results, name="results"),
+    path("<int:question_id>/vote/", views.vote, name="vote"),
+]
+```
+
+- index.html
+
+```html
+{% if latest_question_list %}
+    <ul>
+        {% for question in latest_question_list %}
+            <!-- Usando url de Django para evitar el hardcodeo -->
+            <li><a href="{ url 'polls:detail' question.id }">{{ question.question_text }}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available</p>
+{% endif %}
+```
+
+---------------------------------------
+
+## Formularios: lo básico
 
 
 

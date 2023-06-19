@@ -794,7 +794,23 @@ Listo! ya podemos probar nuestras views en un navegador. Por supuesto que por el
 
 -----------------------------------
 
-## 
+## Templates de Django. 
+
+Cada vista se puede ligar a un template en particular. Cada view sería el backend y cada template sería el frontend siempre que nos estemos ocupando de construir una app de forma fullstack. 
+
+1. Creamos dentro de nuestra app una carpeta llamada templates y dentro de la misma otra llamada polls (es decir como se llama nuestra app)
+
+2. Creamos dentro del directorio anterior un archivo .html por cada view que tenemos en nuestra app. 
+
+3. Django cuenta con un "lenguaje de programación" llamado "Django Template System" que nos ayuda a construir templates. El cual se usa con los simbolos de {% %}. Es decir, ej Jinja. Para poder escribir rapidamente en Jinja podemos usar la extensión de Jinja que instalamos para trabajar con Flask o podemos instalar la extensión de Django que es aún mas agil. 
+
+4. Si instalamos la extensiones de Django debemos hacer una config adicional en nuestro archivo settings.json de VSCode para que en un mismo archivo podamos invocar las estructuras rapidas de Django así como las estructuras de HTML para tener una sintaxis mas rapida y productiva. La misma se configura agregando en el archivo mencionado el siguiente JSON: 
+
+```json
+    "emmet.includeLanguages": {
+        "html": "django-html"
+    }
+```
 
 
 

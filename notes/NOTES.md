@@ -1054,6 +1054,39 @@ Otra forma de acceder a esta misma info, quizas mas simple es verlo desde los va
 
 ## Creando la vista Results
 
+1. Creo la lógica de negocio de mi vista: 
+
+```py
+## 3° View: Cantidad de votos que tiene cada una de las respuestas de nuestras preguntas
+def results(request, question_id):
+    # Siempre a results vamos a llevar despues de submitear el form en votes
+    question = get_object_or_404(Question, pk=question_id)
+    context = {
+        "question": question
+    }
+    return render(request, "polls/results.html", context)
+```
+
+2. Creo mi template results.html que voy a renderear para mostrar mis votos de cada curso:
+
+```html
+<h1>{{ question.question_text }}</h1>
+<ul>
+    {% for choice in question.choice_set.all %}
+        <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes | pluralize }}</li>
+    {% endfor %}
+</ul>
+<!-- Al final de los votos coloco un ancla para que el cliente pueda votar de nuevo si así lo desea -->
+<a href="{% url 'polls:index' %}">Volver a votar</a>
+```
+el "pluralize" es filtro de Django que nos permite agregarle la "s" al final si el numero es mayor a 1. 
+
+Finalmente dejo un link para retornar al principio si el cliente quiere volver a votar en alguna de las categorías de nuestra platzi awards. 
+
+----------------------------------
+
+## Generic Views
+
 
 
 

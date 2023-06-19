@@ -26,7 +26,12 @@ def detail(request, question_id):
 
 ## 3° View: Cantidad de votos que tiene cada una de las respuestas de nuestras preguntas
 def results(request, question_id):
-    return HttpResponse(f"Estás viendo los resultados de la pregunta número {question_id}")
+    # Siempre a results vamos a llevar despues de submitear el form en votes
+    question = get_object_or_404(Question, pk=question_id)
+    context = {
+        "question": question
+    }
+    return render(request, "polls/results.html", context)
 
 ## 4° View: La vamos a usar para votar pero no va a tener un frontend propio.
 def vote(request, question_id):

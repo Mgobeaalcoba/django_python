@@ -1087,6 +1087,96 @@ Finalmente dejo un link para retornar al principio si el cliente quiere volver a
 
 ## Generic Views
 
+Hasta acá todas las views fueron functions base views. Llegó la hora de practicar y explorar las generic views que son aquellas basadas en clases. 
+
+El 80% de los trabajos con Django consisten en traer datos de nuestras bases de datos, pasarlos a un template para renderear el mismo y finalmente mostrarlos en una pagina de internet. Este patrón es el mas común y nos va a hacer incumplir un principio muy común en programación que debemos siempre respetar como buena práctica. Ese principio es el principio DRY = Don't repeat yourself o "No repitamos codigo".  
+
+Por ejemplo en nuestro proyecto tenemos dos vistas que son exactamente iguales a excepción del template que renderiza. Detail y Result son prácticamente iguales. 
+
+Esto es incumplir el principio DRY. 
+
+Para solucionar esto Django nos propone las **"Generic Views"** o **"Class Based Views"** 
+
+Generic Views hay varias: 
+
+- Una que viene de base denominada "List View" diseñada para traer varios elementos de nuestra base de datos, renderizarlos y mostrarlos
+- Login View (Loguear un usuario)
+- Logout View (Deslogear un usuario)
+- Create View (Crear un perfil)
+- Update View (Para actualizar un registro en nuestra base de datos. Por ejemplo actualizar un perfil)
+- Form View (Crear un hilo de twitter)
+- Delete View (Borrando un tweet)
+
+Todas estas podrías hacerlas de forma personalizada con las functions based views pero las mismas no serían tan simples y cortan de implementar como lo son cuando usamos las Generic Views de Django. 
+
+Acá podemos encontrar todas las generic views que nos ofrece Django: https://ccbv.co.uk/
+
+---------------------------------
+
+## Implementando generic views en la aplicación
+
+1. En views.py comentamos las vistas index, results y detail.
+
+En las listas con una logica tan compleja conviene usar function based views. 
+
+2. Importamos desde django.views a generic
+
+```py
+from django.views import generic
+```
+3. Creo mis vistas basadas en clases o Generic Views de Django heredando el tipo de view generica que necesite para cada caso. 
+
+Por ejemplo: 
+
+```py
+# Reformulo mi index view como una generic view que hereda del tipo ListView de Django
+class IndexView(generic.ListView):
+    template_name = "polls/index.html"
+    context_object_name = "latest_question_list"
+
+    def get_queryset(self) -> QuerySet[Any]:
+        """_summary_
+        Return the last five published question
+        Returns:
+            QuerySet[Any]: _description_
+        """
+        return Question.objects.order_by("-pub_date")[:5] # Ordena de las mas recientes a las mas antiguas por el signo menos / Con slices le pido solo 5 registros
+    
+# Detail view heredada de una Generic View de Django:
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = "polls/detail.html"
+
+# Result view heredada de una Generic View de Django:
+class ResultView(generic.DetailView):
+    model = Question
+    template_name = "polls/results.html"
+```
+4. Ahora debo cambiar la invocación de mis views en mi detalle de urls.py para invocar a mis clases en lugar de mis functions based views. Para ello debo llamarlas usando su método as_view() así: 
+
+```py
+from django.urls import path
+
+from . import views
+
+app_name = "polls" # Variable para evitar el hardcodeo en mi template
+
+urlpatterns = [
+    path("", views.IndexView.as_view(), name="index"),
+    path("<int:pk>/", views.DetailView.as_view(), name="detail"),
+    path("<int:pk>/results/", views.ResultView.as_view(), name="results"),
+    path("<int:question_id>/vote/", views.vote, name="vote"),
+]
+```
+
+Adicionalmente debo cambiar el question_id por una variable de Django para realizar este tipo de trabajos que se llama "pk" por primary key. 
+
+**CONCLUSION**: Si puedo seguir el patron de: "1. traigo datos de mi base, 2. lo paso al template para renderearlo, 3. lo muestro" entonces conviene usar **Generic Views** o **Class Based Views de Django**. Si voy a hacer una lógica mas compleja que esa entonces debemos usar **Functions Based Views**
+
+----------------------------------------
+
+
+
 
 
 

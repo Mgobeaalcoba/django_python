@@ -932,6 +932,20 @@ urlpatterns = [
 
 ## Formularios: lo básico
 
+Concepto fundamental para un backend developer con Python. 
+
+Medio mediante el cual el cliente completa información que nosotros necesitamos para poder utilizar y aplicar la lógica de negocio apropiada (guardar info, procesarla y devolver algo, etc). 
+
+Vamos a transformar nuestra vista de detalle de cada Question en un formulario donde cada cliente podrá darle click y votar que respuesta es la mas apropiada para el. 
+
+HTML tienen un objeto "form" el cual tiene un atributo action="" donde definimos hacía donde queremos enviar la información que se introduce en nuestro formulario. 
+
+¿Donde vamos a enviar el resultado del formulario que estamos creando? A la vista "vote" que es la vista que en principio habiamos definido como una vista sin template especifico. Y ahora se comprende por qué. 
+
+Recordemos también completar el metodo HTTP que va a usar nuestro formulario. En este caso es el método "POST". 
+
+
+
 
 
 

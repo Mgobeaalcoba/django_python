@@ -944,6 +944,123 @@ HTML tienen un objeto "form" el cual tiene un atributo action="" donde definimos
 
 Recordemos también completar el metodo HTTP que va a usar nuestro formulario. En este caso es el método "POST". 
 
+```html
+<form action="{% url 'polls:vote' question.id %}" method="post">
+    {% csrf_token %} <!-- Protección de Django contra el cross site request forgery -->
+    <fieldset>
+        <legend><h1>{{ question.question_text }}</h1></legend>
+        {% if error_messege %}
+            <p><strong>{{ error_messege }}</strong></p>
+        {% endif %}
+        {% for choice in question.choice_set.all %}
+            <input 
+                type="radio"
+                name="choice"
+                id="choice{{ forloop.counter }}" 
+                value="{{choice.id}}"
+            >
+            <label for="choice{{ forloop.counter }}">
+                {{ choice.choice_text }}
+            </label> 
+            <br>
+            <!-- forloop.counter es un atajo de Django para acceder al numero de vueltas que lleva nuestro ciclo. Nos permite tener un id dinamico -->
+        {% endfor %}
+    </fieldset>
+    <input type="submit" value="Votar">
+</form>
+
+<!-- <h1>{{ question.question_text }}</h1>
+<ul>
+    {% for choice in question.choice_set.all %}
+        <li>{{ choice.choice_text }}</li>
+    {% endfor %}
+</ul> -->
+```
+
+Con esto ya podemos ver que tenemos nuestro form desplegado pero seleccionemos la opción que seleccionemos no estamos sumando votos realmente dado que para eso debemos trabajar nuestra view de "vote". Cosa que vamos a hacer en la siguiente etapa. 
+
+---------------------------------------------
+
+## Creando la vista vote
+
+- polls/views.py
+
+```py
+## 4° View: La vamos a usar para votar pero no va a tener un frontend propio.
+def vote(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    try:
+        selected_choice = question.choice_set.get(pk=request.POST["choice"]) # Con el name choice accedo al value choice.id de la elección del cliente. 
+    except (KeyError, Choice.DoesNotExist): # Si llave del dict "choice" no existe...No seleccionó nada
+        context= {
+            "question": question,
+            "error_messege": "No elegiste una respuesta"
+        }
+        return render(request, "polls/detail.html", context)
+    else: # Dentro de un try/except se ejecuta si todo salío bien en el Try
+        selected_choice.votes += 1 # Sumo un voto al atributo de Choice
+        selected_choice.save() # Salvo los nuevos valores en mi base de datos para luego poder recuperarlos
+        return HttpResponseRedirect(reverse("polls:results"), args=(question.id))
+```
+
+¿Que estamos haciendo en esta vista? 
+
+1. El question_id ya me viene por URL, el mismo viene seleccionado desde la selección que el cliente hace de la pregunta en la que quiere votar en index.html
+
+2. Al hacer submit, el cliente envía el form al endpoint/vista de arriba ⬆️ y podemos acceder al mismo a traves del atributo POST de la variable request. Dentro de la misma que es un diccionario vamos a buscar el "name" del atributo del form que en este caso lo definimos como "choice" y nos va a devolver el "value" correspondiente que según el template que hicimos mas arriba va a ser el "choice.id" 
+
+3. El bloque except lo usamos para evitar que el usuario nos envíe el form sin haber seleccionado ninguna opción. 
+
+4. El bloque else va a definir la lógica de negocio que debe realizar la view en caso de que obtenga la "choice" escogida por el cliente. La cual consiste en sumar un "votes" a su atributo de igual nombre y luego guardar los cambios en nuestra base de datos sqlite3 con el comando .save(). 
+
+5. Finalmente vamos a redirigir al cliente a una pagina luego de envíar el formulario lo cual es una buena práctica a la hora de trabajar con formularios. Es decir, luego del submit no deberíamos seguir en la misma view. Eso lo hacemos con el HttpResponseRedirect que importamos desde django.http. Este redireccionamiento va a ocurrir a una dirección que para no hardcodearla vamos a establecerla usando la function "reverse" de django.urls que es el equivalente pythonico de "url" en Jinja o Django Template System
+
+De esta forma vamos a estar registrando los votos de cada respuesta que luego podremos ver pero por el momento podemos consultar a traves de Consola Interactiva de Django así: 
+
+```bash
+08:06:24 👽 with 🤖 mgobea 🐶 in python/django_python/premiosplatziapp via django_python took 12h 54m 22.7s …
+➜ python3 manage.py shell
+
+Python 3.10.6 (main, Mar 10 2023, 10:55:28) [GCC 11.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+
+>>> from polls.models import Question, Choice
+>>> Question.objects.all()
+<QuerySet [<Question: ¿Cual es el mejor curso de Platzi?>, <Question: ¿Cual es el mejor profesor de Platzi?>, <Question: ¿Cual es la mejor escuela de Platzi?>]>
+
+>>> q1 = Question.objects.get(pk=1)
+>>> q1
+<Question: ¿Cual es el mejor curso de Platzi?>
+
+>>> q1.choice_set.all()
+<QuerySet [<Choice: Curso Básico de Python>, <Choice: Nuevo Curso de Programación Básica>, <Choice: Curso Profesinal de Git y Github>, <Choice: Curso de Fundamentos de Ingeniería de Software>, <Choice: Curso de Terminal de Comandos>]>
+
+>>> for choice in q1.choice_set.all():
+...     print(choice.votes)
+...
+0
+0
+2
+0
+1
+```
+
+Ahi vemos por ejemplo que mis 5 respuestas tienen en orden la siguiente cantidad de votos: [0,0,2,0,1] siendo la tercera respuesta la opción mas votada por el momento. 
+
+Otra forma de acceder a esta misma info, quizas mas simple es verlo desde los valores de nuestros models en el admin de Django usando las credenciales que definimos mas arriba... A mi me gusta mas la consola pero son elecciones libres de cada developer. 
+
+----------------------------------------------
+
+## Creando la vista Results
+
+
+
+
+
+
+
+
 
 
 

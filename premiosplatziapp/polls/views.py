@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
-from .models import Question
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
+
+from .models import Question, Choice
 
 # Create your views here.
 
@@ -28,4 +30,17 @@ def results(request, question_id):
 
 ## 4° View: La vamos a usar para votar pero no va a tener un frontend propio.
 def vote(request, question_id):
-    return HttpResponse(f"Estas votando a la pregunta número {question_id}")
+    question = get_object_or_404(Question, pk=question_id)
+    try:
+        selected_choice = question.choice_set.get(pk=request.POST["choice"]) # Con el name choice accedo al value choice.id de la elección del cliente. 
+    except (KeyError, Choice.DoesNotExist): # Si llave del dict "choice" no existe...No seleccionó nada
+        context= {
+            "question": question,
+            "error_messege": "No elegiste una respuesta"
+        }
+        return render(request, "polls/detail.html", context)
+    else: # Dentro de un try/except se ejecuta si todo salío bien en el Try
+        selected_choice.votes += 1 # Sumo un voto al atributo de Choice
+        selected_choice.save() # Salvo los nuevos valores en mi base de datos para luego poder recuperarlos
+        return HttpResponseRedirect(reverse("polls:results", args=(question.id,))) # La "," expresa que es una tupla de 1 elemento.
+    

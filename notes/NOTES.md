@@ -830,8 +830,57 @@ Probablemente debas recargar la extensión de Django nuevamente luego de esta co
 6. Para que el template funcione y quede asociado a nuestra view debemos editar nuestra view de index en views.py: 
 
 ```py
+from django.shortcuts import render
+from django.http import HttpResponse
+from .models import Question
 
+# Create your views here.
+
+## 1° Function Base View creada en esta app
+def index(request):
+    latest_question_list = Question.objects.all() # Traigo todos los objetos pregunta de mi app para renderearlos en mi Template
+    context = {
+        "latest_question_list": latest_question_list
+    }
+    return render(request, "polls/index.html", context) # No es necesario pasar el dict de context expandido como en Flask en Django
 ```
+
+Hecho esto ya podemos visitar nuestro endpoint "/polls" y ver a nuestro primer template en funcionamiento. 
+
+-------------------------------------
+
+## Elevando el error 404
+
+Recordemos que los errores en el rango de los 400 son errores del lado del cliente. Mientras que los errores del rango de los 500 son errores del lado del servidor. 
+
+Los errores del lado del cliente deben ser previstos y trabajados de forma oportuna para que la experiencia frente al error sea lo mas grata posible y no consista simplemente en una pantalla estandar del navegador por un error 404. 
+
+Veamoslo aplicado a nuestro endpoint de "detail":
+
+```py
+def detail(request, question_id):
+    # question = Question.objects.get(pk=question_id) # Busco solo la question_id que me piden por URL. Si la pregunta no existe vamos a tener un 404 a menos que lo manejemos...
+    question = get_object_or_404(Question, pk=question_id) # Forma segura para buscar un elemento en el modelo
+    context = {
+        "question": question
+    }
+    return render(request, "polls/detail.html", context)
+```
+
+Django nos ofrece una forma muy sencilla de manejar el error que es importando el shortcut "get_object_or_404". 
+
+Re definida nuestra view debemos entonces construir el template que vamos a renderear cuando el cliente le pegue a nuestro endpoint:
+
+```html
+<h1>{{ question.question_text }}</h1>
+<ul>
+    {% for choice in question.choice_set.all %}
+        <li>{{ choice.choice_text }}</li>
+    {% endfor %}
+</ul>
+```
+
+Listo ya tenemos renderada la segunda de nuestras views definidas. Aún falta el formato pero eso es algo que vamos a ver luego!!! 
 
 
 

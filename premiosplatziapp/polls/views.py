@@ -1,11 +1,16 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from .models import Question
 
 # Create your views here.
 
 ## 1° Function Base View creada en esta app
 def index(request):
-    return HttpResponse("Estás en la página principal de Premios Platzi App")
+    latest_question_list = Question.objects.all() # Traigo todos los objetos pregunta de mi app para renderearlos en mi Template
+    context = {
+        "latest_question_list": latest_question_list
+    }
+    return render(request, "polls/index.html", context) # No es necesario pasar el dict de context expandido como en Flask en Django
 
 ## 2° View: Nos muestra una pregunta y el detalle de las opciones de respuesta para esa pregunta
 def detail(request, question_id):

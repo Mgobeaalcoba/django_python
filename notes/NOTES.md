@@ -811,6 +811,27 @@ Cada vista se puede ligar a un template en particular. Cada view sería el backe
         "html": "django-html"
     }
 ```
+Probablemente debas recargar la extensión de Django nuevamente luego de esta config para que todo funcione bien. 
+
+5. Construimos nuestro primer template para index.html dentro de la app "polls" así por ejemplo: 
+
+```html
+{% if latest_question_list %}
+    <ul>
+        {% for question in latest_question_list %}
+            <li><a href="/polls/{{ question.id }}">{{ question.question_text }}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available</p>
+{% endif %}
+```
+
+6. Para que el template funcione y quede asociado a nuestra view debemos editar nuestra view de index en views.py: 
+
+```py
+
+```
 
 
 

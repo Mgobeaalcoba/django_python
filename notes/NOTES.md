@@ -2038,6 +2038,44 @@ Cargo nuevamente mi index y veré de fondo a mi imagen sin repetirse
 
 ## Mejorando el Admin: Questions
 
+**Sorpresa**: El Admin de Django puede ser personalizado a nuestro gusto y necesidad... 🤯💥😻
+
+Dentro del Home del Admin vamos a encontrar nuestas apps y dentro de nuestras apps vamos a encontrar nuestros modelos. 
+
+Con Add question por ejemplo yo puedo crear con un frontend un nuevo objeto Question y a la vez estamos guardando en nuestra tabla la nueva entidad Question. 
+
+Hagamos un poco de memoria... La configuración de que objetos se muestran en nuestro Admin se realizaba desde nuestro archivo admin.py que está dentro de nuestra app "polls"
+
+```py
+from django.contrib import admin
+from .models import Question, Choice
+
+# Register your models here.
+
+# Config para que en el mismo formulario donde creo preguntas me aparezca la opción para crear respuestas:
+class ChoiceInline(admin.StackedInline):
+    model = Choice
+    # Cuantas respuestas quiero agregar por default: 
+    extra = 3 # Spoiler: Si no uso las tres puedo eliminarlas en el form directamente
+
+# Las clases que creemos con el nombre de un modelo y la palabra admin al final nos van a servir para configurar como queremos ver al modelo en el Admin
+class QuestionAdmin(admin.ModelAdmin):
+    fields = [
+        "pub_date", 
+        "question_text"
+    ]
+    # Agrego dentro de mi clase Question a Choice como una clase dependiente y necesaria para generar la Question. 
+    inlines = [ChoiceInline]
+
+admin.site.register(Question, QuestionAdmin)
+```
+
+Acá estamos configurando que nuestra clase Question se muestre con un modelo especifico, en este caso con el modelo QuestionAdmin y a su vez estamos declarando una clase ChoiceInline que significa que queremos mostrarla de forma dependiente, dentro de la creación de Questions. Allí vamos a mostrar tres campos para agregar opciones de respuestas por default. Si alguna no se usa podemos eliminarla desde el mismo form. 
+
+------------------------------------
+
+## Mejorando el Admin: Change List
+
 
 
 

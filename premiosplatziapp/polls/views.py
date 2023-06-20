@@ -48,8 +48,8 @@ class IndexView(generic.ListView):
         Returns:
             QuerySet[Any]: _description_
         """
-        return Question.objects.order_by("-pub_date")[:5] # Ordena de las mas recientes a las mas antiguas por el signo menos / Con slices le pido solo 5 registros
-        # return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[:5] # __lte = menor o igual a hoy
+        # return Question.objects.order_by("-pub_date")[:5] # Ordena de las mas recientes a las mas antiguas por el signo menos / Con slices le pido solo 5 registros
+        return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[:5] # __lte = menor o igual a hoy
     
 # Detail view heredada de una Generic View de Django:
 class DetailView(generic.DetailView):

@@ -1303,6 +1303,117 @@ python3 manage.py test polls
 
 ## Solucionando el error encontrado con nuestro Test
 
+1. Gracias al test sabemos que el error está dentro del método was_published_recently.
+
+2. Lo solucionamos con un simple cambio en el método que valide no solo que la fecha sea mayor o igual a hoy - 1 día sino también que sea menor o igual a hoy. De esa forma evitamos casos de preguntas publicadas en el futuro: 
+
+```py
+# Django transformara nuestras clases a tablas en nuestra base de datos sqlite3
+class Question(models.Model):
+    # Definimos los atributos de esta clase que se corresponden con las columnas de la tabla Question: 
+    # id no es necesario dado que Django lo genera solo de forma autoincremental
+    question_text = models.CharField(max_length=200)
+    pub_date = models.DateTimeField(name="pub_date")
+
+    def __str__(self):
+        return self.question_text
+    
+    def was_published_recently(self):
+        return self.pub_date >= timezone.now()  - datetime.timedelta(days=1) and self.pub_date <= timezone.now()
+```
+
+Ahora al testear vemos que el test que ya habiamos construido pasa perfectamente:
+
+```bash
+08:03:01 👽 with 🤖 mgobea 🐶 in python/django_python/premiosplatziapp via django_python …
+➜ python3 manage.py test polls
+Found 1 test(s).
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK
+Destroying test database for alias 'default'...
+```
+Pasemos en limpio entonces los paso a seguir a la hora de elaborar y correr un test: 
+
+1. Identificamos un problema.
+2. Creamos un test.
+3. Corremos el test. (Falla)
+4. Arreglamos el problema.
+5. Corremos el test. (Aprueba)
+
+De esta forma se debe testear una aplicación en la programación profesional. 
+
+-------------------------------------------------
+
+## Testing de Views
+
+No solo podemos, y debemos testear nuestros módelos, sino que también debemos testear nuestras views, el backend de nuestra aplicación para corroborar que estén aplicando la lógica de negocio tal como necesitamos que lo haga. 
+
+Por ejemplo, yo entiendo que si una pregunta tiene pub_date en el futuro no debería verse en el index de nuestra web app hasta que llegue esa fecha. Sin embargo, al probar vemos que no es así. Y que aparecen aún aquellas preguntas con fecha de publicación futura. 
+
+Entonces creemos un test para entender si las Question con pub_date en el futuro se están mostrando o no lo están haciendo. 
+
+Para solucionarlo debería cambiar el código del método get_queryset() de mí view IndexView
+
+```py
+# Reformulo mi index view como una generic view que hereda del tipo ListView de Django
+class IndexView(generic.ListView):
+    template_name = "polls/index.html"
+    context_object_name = "latest_question_list"
+
+    def get_queryset(self):
+        """_summary_
+        Return the last five published question
+        Returns:
+            QuerySet[Any]: _description_
+        """
+        # return Question.objects.order_by("-pub_date")[:5] # Ordena de las mas recientes a las mas antiguas por el signo menos / Con slices le pido solo 5 registros
+        return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[:5] # __lte = menor o igual a hoy
+```
+
+Pero acá estoy solucionando mi error sin haberlo testeado previamente. Creemos los test entonces para que este bug no nos vuelva a suceder nunca mas en el futuro: 
+
+```py
+# Testing de Views: 
+class QuestionIndexViewTests(TestCase):
+    def test_no_questions(self):
+        """
+        If we haven't got published question the app should print a message with the next content: "No polls are available"
+        """
+        response = self.client.get(reverse("polls:index")) # Hago una petición HTTP sobre mi url "index" y me guardo la respuesta. 
+        #  ¿Que debo verificar? 
+        ## 1. Que la respuesta sea satisfactoria. Es decir, StatusCode 200
+        self.assertEqual(response.status_code, 200)
+        ## 2. Que la respuesta contenga el mensaje "No polls are available"
+        self.assertContains(response, "No polls are available")
+        ## 3. Que el conjunto de preguntas que trajo Django de sqlite sea una lista vacia
+        self.assertQuerysetEqual(response.context["latest_question_list"], [])
+        # Los tests deberían pasar exitosamente con el código que tenemos dado que Django Test trabaja con una base de datos provisoria y no con la base de datos que realmente tenemos construida para testear.
+    # Challenge: Index ya no muestra preguntas del futuro: 
+    def test_no_future_questions(self):
+        """
+        If we have got question whose pub_date is greater than now the IndexView should not show them
+        """
+        response = self.client.get(reverse("polls:index"))
+        self.assertEqual(response.status_code, 200)
+        questions = response.context["latest_question_list"]
+        for question in questions:
+            self.assertTrue(question.pub_date <= timezone.now())
+```
+Los tests deberían pasar exitosamente con el código que tenemos dado que Django Test trabaja con una base de datos provisoria y no con la base de datos que realmente tenemos construida para testear. 
+
+---------------------------------------------
+
+## Creando mas Tests para IndexView
+
+
+
+
+
 
 
 

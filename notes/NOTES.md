@@ -2124,10 +2124,74 @@ En este caso le agregue a nuestro Admin tres cosas:
 2. Agrego un filtro de tipo de lista para el único atributo que podría usar con este tipo de listas: pub_date
 3. Agrego un filtro de busqueda por texto para poder filtrar por contenido del search_field que trabaje sobre el question_text
 
+Acá termina el contenido de Backend con Django!!! Lo que viene es un extra de Frontend para Django Developers fullstack
+
 --------------------------------------
 
 ## Comenzando a crear un Frontend
 
+1. Editamos index.html. Necesitamos una estructura de HTML semantico y completo en lugar del HTML absolutamente básica que teniamos por el momento. 
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premios Platzi App</title>
+</head>
+<body>
+    <header>
+        <h1>Premios Platzi App</h1>
+    </header>
+    <main> 
+        {% if latest_question_list %}
+            <ul>
+                {% for question in latest_question_list %}
+                    <!-- Usando url de Django para evitar el hardcodeo -->
+                    <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No polls are available</p>
+        {% endif %}
+    </main>
+    <footer>
+        <a href="https://platzi.com">Platzi</a>
+        <a href="#">Contacto</a>
+        <a href="#">¿Quieres ser profe?</a>
+        <a href="#">Política de privacidad</a>
+        <a href="#">Términos y Condiciones</a>
+    </footer>
+</body>
+</html>
+
+<!-- Cargamos nuestros archivos estaticos a nuestro html -->
+<!-- {% load static %}
+<link rel="stylesheet" href="{% static 'polls/style.css' %}">
+
+{% if latest_question_list %}
+    <ul>
+        {% for question in latest_question_list %}
+            Usando url de Django para evitar el hardcodeo
+            <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available</p>
+{% endif %} --> 
+```
+
+Como vemos ahora la página tiene elementos similares a los de una web promedio pero aún sin estilos. Eso vamos a configurarlo en nuestro css de styles...
+
+-------------------------------------------
+
+## Añadiendo estilos al home de nuestra aplicación
+
+1. Vamos a editar el archico de style.css que ya teniamos. 
+2. Vamos a realizar una buena práctica de diseño que es tener un archivo de reset.css que nos permita resetear los estilos que algunos navegadores crean por defecto para nosotros pero a nosotros no nos interesan.
+3. En el head debajo de los meta vamos a poner las etiquetas link para referenciar nuestro html con los estilos de los CSS. 
+4. Le agregamos el load static al principio porque sino los archivos estaticos NO van a cargar  
 
 
 

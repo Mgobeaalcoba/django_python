@@ -1,0 +1,10 @@
+/* Todos los a en nuestros list items */
+li a{
+    color: green;
+    font-size:larger;
+    font-family: sans-serif;
+}
+
+body {
+    background: white url("images/background.gif") no-repeat;
+}

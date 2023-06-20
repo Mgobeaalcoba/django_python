@@ -1973,7 +1973,72 @@ class QuestionResultViewTest(TestCase):
 
 Los estilos se agregan mediante archivos estáticos (CSS, JS e imagenes) para poder hacer una Web App completa. 
 
-Disclaimer: Esto en realidad ya es una tarea del Frontend Developer pero un buen backend debe conocer algo de Frontend también. Por lo que esto es un plus a nuestro conocimiento. 
+Disclaimer: Esto en realidad ya es una tarea del Frontend Developer pero un buen backend debe conocer algo de Frontend también. Por lo que esto es un plus a nuestro conocimiento acumulado hasta acá: 
+
+1. Creo un carpeta llamada static en la raiz de **nuestra app**, en este caso sería **polls**
+
+2. Dentro de ella irá todo el CSS, el JS y las imagines de nuestra aplicación. Pero esos archivos estaticos deben ir dentro de otra carpeta que se llame igual que nuestra app
+
+3. Creo un styles.css en nuestra carpeta static
+
+```css
+/* Todos los a en nuestros list items */
+li a{
+    color: green;
+    font-size:larger;
+    font-family: sans-serif;
+}
+```
+
+4. Agrego el archivo de estilos a los templates donde los quiero usar. Por ejemplo "index.html"
+
+```html
+<!-- Cargamos nuestros archivos estaticos a nuestro html -->
+{% load static %}
+<link rel="stylesheet" href="{% static 'polls/styles.css' %}">
+
+{% if latest_question_list %}
+    <ul>
+        {% for question in latest_question_list %}
+            <!-- Usando url de Django para evitar el hardcodeo -->
+            <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available</p>
+{% endif %}
+```
+
+5. Para que me reconozca los archivos estaticos lamentablemente si tendremos que apagar el servidor de desarrollo y volver a encenderlo luego. 
+
+---------------------------------
+
+## Añadiendo una imagen de fondo
+
+1. Creo una carpeta dentro de static/polls que se llame images en donde voy a dejar todas las imagenes que quiero renderear en mi web
+
+2. En styles.css vamos a colocar: 
+
+```css
+/* Todos los a en nuestros list items */
+li a{
+    color: green;
+    font-size:larger;
+    font-family: sans-serif;
+}
+
+body {
+    background: white url("images/background.gif") no-repeat;
+}
+```
+
+Cargo nuevamente mi index y veré de fondo a mi imagen sin repetirse
+
+---------------------------------------
+
+## Mejorando el Admin: Questions
+
+
 
 
 

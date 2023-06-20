@@ -2192,7 +2192,325 @@ Como vemos ahora la página tiene elementos similares a los de una web promedio 
 2. Vamos a realizar una buena práctica de diseño que es tener un archivo de reset.css que nos permita resetear los estilos que algunos navegadores crean por defecto para nosotros pero a nosotros no nos interesan.
 3. En el head debajo de los meta vamos a poner las etiquetas link para referenciar nuestro html con los estilos de los CSS. 
 4. Le agregamos el load static al principio porque sino los archivos estaticos NO van a cargar  
+5. Editamos nuestro styles.css para darle un formato amigable: 
 
+- index.html
+
+```html
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'polls/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'polls/style.css' %}">
+    <title>Premios Platzi App</title>
+</head>
+<body>
+    <header>
+        <h1>Premios Platzi App</h1>
+    </header>
+    <main> 
+        {% if latest_question_list %}
+            <ul>
+                {% for question in latest_question_list %}
+                    <!-- Usando url de Django para evitar el hardcodeo -->
+                    <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No polls are available</p>
+        {% endif %}
+    </main>
+    <footer>
+        <a href="https://platzi.com">Platzi</a>
+        <a href="#">Contacto</a>
+        <a href="#">¿Quieres ser profe?</a>
+        <a href="#">Política de privacidad</a>
+        <a href="#">Términos y Condiciones</a>
+    </footer>
+</body>
+</html>
+```
+
+- style.css
+
+```css
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
+    background: hsl(204, 100%, 5%);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 50px;
+    padding-top: 100px;
+    
+    height: 60px;
+    font-size: 72px;
+    color: #71632d;
+}
+
+ul {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+header, ul {
+    background: linear-gradient(
+        to right,
+        hsl(98 100% 62%),
+        hsl(204 100% 59%)
+    );
+    background-clip: content-box;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+}
+
+li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 500px;
+    border: 1px solid white;
+    padding: 50px;
+    margin-bottom: 20px;
+
+    font-size: 28px;
+}
+
+a {
+    color: white;
+    text-decoration: none;
+}
+
+footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+
+    width: 100vw;
+    padding: 50px 0;
+}
+```
+--------------------------------------------
+
+## Creando la estructura de la vista de detalle: 
+
+- detail.html: 
+
+```html
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'polls/style.css' %}">
+    <link rel="stylesheet" href="{% static 'polls/detail.css' %}">
+    <title>{{ question.question_text }}</title>
+</head>
+<body>
+    <form action="{% url 'polls:vote' question.id %}" method="post">
+        {% csrf_token %} <!-- Protección de Django contra el cross site request forgery -->
+        <fieldset>
+            <legend><h1>{{ question.question_text }}</h1></legend>
+            {% if error_messege %}
+                <p><strong>{{ error_messege }}</strong></p>
+            {% endif %}
+            {% for choice in question.choice_set.all %}
+                <input 
+                    type="radio"
+                    name="choice"
+                    id="choice{{ forloop.counter }}" 
+                    value="{{choice.id}}"
+                >
+                <label for="choice{{ forloop.counter }}">
+                    {{ choice.choice_text }}
+                </label> 
+                <br>
+                <!-- forloop.counter es un atajo de Django para acceder al numero de vueltas que lleva nuestro ciclo. Nos permite tener un id dinamico -->
+            {% endfor %}
+        </fieldset>
+        <input type="submit" value="Votar">
+    </form>
+</body>
+</html>
+```
+
+---------------------------------------
+## Finalizando los estilos de la vista de detalle: 
+
+1. Creamos el detail.css al cual llamamos como archivo estatico de estilos desde nuestro HTML:
+
+```css
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+form {
+    background: linear-gradient(
+        to right,
+        hsl(98 100% 62%),
+        hsl(204 100% 59%)
+    );
+    background-clip: content-box;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+}
+
+/* Son los recuadros del formulario para votar por las respuestas */
+fieldset {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+/* Estilos para el botón de votar únicamente */
+input[type="submit"] {
+    width: 100%;
+    height: 40px;
+    margin-top: 20px;
+
+    -webkit-text-fill-color: white;
+    background: hsl(204, 100%, 5%);
+    border: 1px solid white;
+    font-size: 20px;
+}
+```
+
+2. Mas allá de los estilos propios de detail.css vamos a aprovechar todos los estilos de los elementos HTML que se repiten con el index en nuestro archivo style.css. Por lo que debemos linkearlo primero a style y luego recien a detail.css
+
+Vayamos ahora finalmente a darle estilos a la ultima de nuestros templates. El de results...
+
+results.html
+
+```html
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'polls/style.css' %}">
+    <title> {{ question.question_text }} - Results </title>
+</head>
+<body>
+    <header>
+        <h1>{{ question.question_text }}</h1>
+    </header>
+    <main>
+        <ul>
+            {% for choice in question.choice_set.all %}
+                <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes | pluralize }}</li>
+            {% endfor %}
+        </ul>
+    </main>
+    <footer>
+        <!-- Al final de los votos coloco un ancla para que el cliente pueda votar de nuevo si así lo desea -->
+        <a href="{% url 'polls:index' %}">Volver a votar</a>    
+    </footer>
+</body>
+</html>
+```
+- Edite finalmente el archivo de estilos principal para que me sea util también a para mi template results.html: 
+
+```css
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: auto;
+    background: hsl(204, 100%, 5%);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 50px;
+    padding-top: 100px;
+    
+    height:auto;
+    font-size: 72px;
+    color: #71632d;
+}
+
+ul {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+header, ul {
+    background: linear-gradient(
+        to right,
+        hsl(98 100% 62%),
+        hsl(204 100% 59%)
+    );
+    background-clip: content-box;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+}
+
+li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 500px;
+    border: 1px solid white;
+    padding: 50px;
+    margin-bottom: 20px;
+
+    font-size: 28px;
+}
+
+a {
+    color: white;
+    text-decoration: none;
+}
+
+footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+
+    width: 100vw;
+    padding: 50px 0;
+}
+```
+
+Y ahora sí tenemos un hermosa Web App con estilos y un backend que maneja perfectamente la lógica de negocio gracias a Django y nuestro talento: 
+
+<img src="../images/index.png">
+<img src="../images/detail.png">
+<img src="../images/results.png">
 
 
 

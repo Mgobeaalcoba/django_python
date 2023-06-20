@@ -1,8 +1,27 @@
-<h1>{{ question.question_text }}</h1>
-<ul>
-    {% for choice in question.choice_set.all %}
-        <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes | pluralize }}</li>
-    {% endfor %}
-</ul>
-<!-- Al final de los votos coloco un ancla para que el cliente pueda votar de nuevo si así lo desea -->
-<a href="{% url 'polls:index' %}">Volver a votar</a>
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'polls/style.css' %}">
+    <title> {{ question.question_text }} - Results </title>
+</head>
+<body>
+    <header>
+        <h1>{{ question.question_text }}</h1>
+    </header>
+    <main>
+        <ul>
+            {% for choice in question.choice_set.all %}
+                <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes | pluralize }}</li>
+            {% endfor %}
+        </ul>
+    </main>
+    <footer>
+        <!-- Al final de los votos coloco un ancla para que el cliente pueda votar de nuevo si así lo desea -->
+        <a href="{% url 'polls:index' %}">Volver a votar</a>    
+    </footer>
+</body>
+</html>

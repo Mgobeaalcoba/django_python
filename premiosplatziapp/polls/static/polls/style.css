@@ -3,7 +3,7 @@ body {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    height: 100vh;
+    height: auto;
     background: hsl(204, 100%, 5%);
     font-family: Arial, Helvetica, sans-serif;
 }
@@ -16,7 +16,7 @@ header {
     padding: 50px;
     padding-top: 100px;
     
-    height: 60px;
+    height:auto;
     font-size: 72px;
     color: #71632d;
 }
@@ -34,6 +34,7 @@ header, ul {
         hsl(98 100% 62%),
         hsl(204 100% 59%)
     );
+    background-clip: content-box;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-align: center;

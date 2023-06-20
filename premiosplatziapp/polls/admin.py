@@ -17,5 +17,20 @@ class QuestionAdmin(admin.ModelAdmin):
     ]
     # Agrego dentro de mi clase Question a Choice como una clase dependiente y necesaria para generar la Question. 
     inlines = [ChoiceInline]
+    # Modificamos la vista de los distintos objetos del modelo en el Admin: 
+    list_display = (
+        "question_text",
+        "pub_date",
+        "was_published_recently",
+    )
+    # En este caso le digo que quiero ver los dos atributos y también el resultado de aplicar el metodo was...
+    # También puedo aplicar filtros a mi Admin
+    list_filter = [
+        "pub_date"
+    ]
+    # Coloco un cuadro de busqueda para buscar por texto:
+    search_fields = [
+        "question_text"
+    ]
 
 admin.site.register(Question, QuestionAdmin)

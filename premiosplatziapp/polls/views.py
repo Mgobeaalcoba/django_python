@@ -1,10 +1,12 @@
 from typing import Any
+from django.db import models
 from django.db.models.query import QuerySet
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
+from django.db.models import Count
 
 from .models import Question, Choice
 
@@ -43,23 +45,52 @@ class IndexView(generic.ListView):
     context_object_name = "latest_question_list"
 
     def get_queryset(self):
-        """_summary_
+        """
         Return the last five published question
         Returns:
             QuerySet[Any]: _description_
         """
         # return Question.objects.order_by("-pub_date")[:5] # Ordena de las mas recientes a las mas antiguas por el signo menos / Con slices le pido solo 5 registros
-        return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[:5] # __lte = menor o igual a hoy
-    
+        # return Question.objects.filter(pub_date__lte=timezone.now(), Question.choice_set.all().count() > 1).order_by("-pub_date")[:5] # __lte = menor o igual a hoy
+        questions = Question.objects.filter(pub_date__lte = timezone.now())
+        # Filtro aquellos que tengan 2 o mas choices para mostrar solo los mismos: 
+        questions = questions.alias(entries=Count('choice')).filter(entries__gt=1)
+        return questions.order_by("-pub_date")[:5]
+
+
 # Detail view heredada de una Generic View de Django:
 class DetailView(generic.DetailView):
     model = Question
     template_name = "polls/detail.html"
 
+    def get_queryset(self):
+        """
+        Return the detail question if the pub_date is less or equal to now, else return a 404 error.
+
+        Returns:
+            Question object: a question object whose pub_date is less or equal than now
+        """
+        question = Question.objects.filter(pub_date__lte = timezone.now())
+        # Filtro aquellos que tengan 2 o mas choices para mostrar solo los mismos: 
+        question = question.alias(entries=Count('choice')).filter(entries__gt=1)
+        return question
+
 # Result view heredada de una Generic View de Django:
 class ResultView(generic.DetailView):
     model = Question
     template_name = "polls/results.html"
+
+    def get_queryset(self):
+        """
+        Return the results question if the pub_date is less or equal to now, else return a 404 error.
+
+        Returns:
+            Question object: a question object whose pub_date is less or equal than now
+        """
+        question = Question.objects.filter(pub_date__lte = timezone.now())
+        # Filtro aquellos que tengan 2 o mas choices para mostrar solo los mismos: 
+        question = question.alias(entries=Count('choice')).filter(entries__gt=1)
+        return question
 
 ## 4° View: La vamos a usar para votar pero no va a tener un frontend propio.
 def vote(request, question_id):

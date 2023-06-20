@@ -1564,6 +1564,421 @@ Destroying test database for alias 'default'...
 
 ## Creando Tests para DetailView
 
+1. Identificamos el problema:
+
+Problema a resolver: Si bien ya no estamos mostrando la totalidad de nuestras preguntas, es decir, excluimos a las preguntas futuras por ejemplo. Si un usuario supiese la URL de para ingresar al detalle de una de nuestras preguntas fúturas podría hacerlo perfectamente dado que nada en la lógica de negocio de nuestras web app se lo está impidiendo. Debemos entonces ocuparnos de ello: 
+
+2. Crear un test para el problema que identificamos: 
+
+```py
+## Test para Detail Views
+class QuestionDetailViewTest(TestCase):
+    def test_future_question(self):
+        """
+        The detail view of a question with a pub_date in the future returns a 404 error not found
+        """
+        future_question = create_question("pregunta 3 - Futuro", days=15)
+        url = reverse("polls:detail", args=(future_question.id,)) # id y pk para django son lo mismo. 
+        response = self.client.get(url)
+        # Verifico que una petición HTTP a la URL definida arriba, que trae el detalle de una pregunta del futuro, me devuelva un 404 y no un 200
+        self.assertEqual(response.status_code, 404)
+
+    def test_past_questin(self):
+        """
+        The detail view of a question with a pub_date in the past displays the question´s text. 
+        """
+        past_question_1 = create_question("pregunta 2", days=-10)
+        url = reverse("polls:detail", args=(past_question_1.id,))
+        response = self.client.get(url)
+        # Verifico que una petición HTTP a la URL definida arriba, que trae el detalle de una pregunta del pasado, me duvuelva un 200 y no un 404
+        self.assertEqual(response.status_code, 200)
+        # Verifico que en la respuesta a mi request exista el texto que forma parte de mi Question. 
+        self.assertContains(response, past_question_1.question_text)
+```
+
+3. Corro los tests y verifico que mi DetailView no está programada de forma correcta: 
+
+```bash
+11:06:05 👽 with 🤖 mgobea 🐶 in python/django_python/premiosplatziapp via django_python …
+➜ python3 manage.py test polls
+Found 11 test(s).
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+F..........
+======================================================================
+FAIL: test_future_question (polls.tests.QuestionDetailViewTest)
+The detail view of a question with a pub_date in the future returns a 404 error not found
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/mgobea/develop/python/django_python/premiosplatziapp/polls/tests.py", line 139, in test_future_question
+    self.assertEqual(response.status_code, 404)
+AssertionError: 200 != 404
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.032s
+
+FAILED (failures=1)
+Destroying test database for alias 'default'...
+```
+
+4. Arreglo entonces el codigo de mi DetailView agregando un método que me permita manejar esta lógica de negocio que de por sí no la estoy manejando: 
+
+```py
+# Detail view heredada de una Generic View de Django:
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = "polls/detail.html"
+
+    def get_queryset(self):
+        """
+        Return the detail question if the pub_date is less or equal to now, else return a 404 error.
+
+        Returns:
+            Question object: a question object whose pub_date is less or equal than now
+        """
+        return Question.objects.filter(pub_date__lte=timezone.now())
+```
+
+5. Vuelvo a correr los test para comprobar que el error está corregido: 
+
+```bash
+11:19:47 👽 with 🤖 mgobea 🐶 in python/django_python/premiosplatziapp via django_python …
+➜ python3 manage.py test polls
+Found 11 test(s).
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+...........
+----------------------------------------------------------------------
+Ran 11 tests in 0.025s
+
+OK
+Destroying test database for alias 'default'...
+```
+
+Listo!!! Aplicando el método de 5 pasos descripto mas arriba he podido resolver un problema de lógica de negocio en mi código. .
+
+### Consejos a la hora de usar Tests:
+
+1. Mas tests es mejor, aunque parezca lo contrario. 
+2. Crea una clase para cada modelo o vista testeada.
+3. Establece nombres de métodos de test los más descriptivos posibles (clean code)
+
+### Challenge final sobre Tests:
+
+1. Crea los tests para ResultsView
+2. Asegurate de que no se puedan mostrar las Questions sin Choices
+3. Crea los tests respectivos
+
+1. Testeo que no se pueda acceder a preguntas del futuro y si se pueda acceder a preguntas del pasado. 
+
+```py
+class QuestionResultViewTest(TestCase):
+    def test_future_question_results(self):
+        """
+        The results view of a question with a pub_date in the future returns a 404 error not found
+        """
+        future_question = create_question("pregunta 3 - Futuro", days=15)
+        url = reverse("polls:results", args=(future_question.id,)) 
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_past_question_results(self):
+        """
+        The results view of a question with a pub_date in the past displays the question´s text. 
+        """
+        past_question_1 = create_question("pregunta 2", days=-10)
+        url = reverse("polls:results", args=(past_question_1.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, past_question_1.question_text)
+```
+
+2. Verifico la cantidad de choices que tiene mi Question para decidir si la muestro o nó en cada una de mis views
+
+```py
+# Reformulo mi index view como una generic view que hereda del tipo ListView de Django
+class IndexView(generic.ListView):
+    template_name = "polls/index.html"
+    context_object_name = "latest_question_list"
+
+    def get_queryset(self):
+        """
+        Return the last five published question
+        Returns:
+            QuerySet[Any]: _description_
+        """
+        # return Question.objects.order_by("-pub_date")[:5] # Ordena de las mas recientes a las mas antiguas por el signo menos / Con slices le pido solo 5 registros
+        # return Question.objects.filter(pub_date__lte=timezone.now(), Question.choice_set.all().count() > 1).order_by("-pub_date")[:5] # __lte = menor o igual a hoy
+        questions = Question.objects.filter(pub_date__lte = timezone.now())
+        # Filtro aquellos que tengan 2 o mas choices para mostrar solo los mismos: 
+        questions = questions.alias(entries=Count('choice')).filter(entries__gt=2)
+        return questions.order_by("-pub_date")[:5]
+
+
+# Detail view heredada de una Generic View de Django:
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = "polls/detail.html"
+
+    def get_queryset(self):
+        """
+        Return the detail question if the pub_date is less or equal to now, else return a 404 error.
+
+        Returns:
+            Question object: a question object whose pub_date is less or equal than now
+        """
+        question = Question.objects.filter(pub_date__lte = timezone.now())
+        # Filtro aquellos que tengan 2 o mas choices para mostrar solo los mismos: 
+        question = question.alias(entries=Count('choice')).filter(entries__gt=2)
+        return question
+
+# Result view heredada de una Generic View de Django:
+class ResultView(generic.DetailView):
+    model = Question
+    template_name = "polls/results.html"
+
+    def get_queryset(self):
+        """
+        Return the results question if the pub_date is less or equal to now, else return a 404 error.
+
+        Returns:
+            Question object: a question object whose pub_date is less or equal than now
+        """
+        question = Question.objects.filter(pub_date__lte = timezone.now())
+        # Filtro aquellos que tengan 2 o mas choices para mostrar solo los mismos: 
+        question = question.alias(entries=Count('choice')).filter(entries__gt=2)
+        return question
+```
+
+3. Testeo que mis views de Index, Detail y Results no me estén mostrando Preguntas sin Respuestas: 
+
+```py
+import datetime
+
+from django.test import TestCase
+from django.utils import timezone
+from django.urls import reverse
+
+from .models import Question
+
+class QuestionModelTest(TestCase):
+    def test_was_published_recently_with_future_question(self):
+        """
+        was_published_recently returns False for questions whose pub_date is in the future
+        """
+        time = timezone.now() + datetime.timedelta(days=30)
+        q = Question(question_text="¿Esta es una pregunta de Test?", pub_date=time)
+        self.assertIs(q.was_published_recently(), False)
+
+    def test_was_published_recently_with_present_question(self):
+        """
+        was_published_recently, method of Question Model, return
+        True for questions whose pub_date is in the present 
+        """
+        time = timezone.now()
+        q = Question(question_text="¿Esta es una pregunta de Test?", pub_date=time)
+        self.assertTrue(q.was_published_recently())
+
+    def test_was_published_recently_with_past_question(self):
+        """
+        was_published_recently, method of Question Model, return
+        True for questions whose pub_date is in the past but what his pub_date is greater or equal than today - 1 day.
+        """
+        time = timezone.now() - datetime.timedelta(hours=6)
+        q = Question(question_text="¿Esta es una pregunta de Test?", pub_date=time)
+        self.assertEqual(q.was_published_recently(), True)
+
+
+def create_question(question_text, days, tag_choice):
+    """Create a question with the given "question_text", and published the given number of days offset to now (negative for questions published in the past, positive for question that have yet to be published)
+
+    Args:
+        question_text (str): The text of de question
+        days (int): The delta days with now 
+    
+    Return:
+        A Question object
+    """
+    time = timezone.now() + datetime.timedelta(days=days)
+    question = Question.objects.create(question_text=question_text, pub_date=time)
+    if tag_choice:
+        question.choice_set.create(choice_text="opcion 1", votes=0)
+        question.choice_set.create(choice_text="opcion 2", votes=0)
+    return question
+
+
+class QuestionIndexViewTests(TestCase):
+    def test_no_questions(self):
+        """
+        If we haven't got published question the app should print a message with the next content: "No polls are available"
+        """
+        response = self.client.get(reverse("polls:index")) # Hago una petición HTTP sobre mi url "index" y me guardo la respuesta. 
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No polls are available")
+        self.assertQuerysetEqual(response.context["latest_question_list"], [])
+
+    def test_no_future_questions(self):
+        """
+        If we have got question whose pub_date is greater than now the IndexView should not show them
+        """
+        q1 = create_question("pregunta 1", -1, True)
+        q2 = create_question("pregunta 2", -10, True)
+        q3 = create_question("pregunta 3 - Futuro", 15, True)
+        response = self.client.get(reverse("polls:index"))
+        self.assertEqual(response.status_code, 200)
+        questions = response.context["latest_question_list"]
+        for question in questions:
+            self.assertTrue(question.pub_date <= timezone.now())
+        self.assertQuerysetEqual(response.context["latest_question_list"], [q1,q2])
+
+    def test_future_question(self):
+        """
+        Questions with a pub_date in the future aren't displayed on the index page. 
+        """
+        create_question("Future question", 30, True) 
+        response = self.client.get(reverse("polls:index"))
+        self.assertContains(response, "No polls are available") 
+        self.assertQuerysetEqual(response.context["latest_question_list"], [])
+
+    def test_past_question(self):
+        """
+        Questions with a pub_date in the past are displayed on the index page. 
+        """
+        question = create_question("Future question", -10, True) 
+        response = self.client.get(reverse("polls:index")) 
+        self.assertQuerysetEqual(response.context["latest_question_list"], [question]) 
+
+    def test_future_question_and_past_question(self):
+        """
+        When we publish a question from the future and a question from the past, it should only show the one from the past
+        """
+        past_question = create_question("pregunta 2", -10, True)
+        future_question = create_question("pregunta 3 - Futuro", 15, True)
+        response = self.client.get(reverse("polls:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(response.context["latest_question_list"], [past_question])
+    
+    def test_two_past_questions(self):
+        """
+        When we publish two questions from the past, it should show twice questions. 
+        """
+        past_question_1 = create_question("pregunta 2", -10, True)
+        past_question_2 = create_question("pregunta 3 - Futuro", -15, True)
+        response = self.client.get(reverse("polls:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(response.context["latest_question_list"], [past_question_1, past_question_2])
+
+    def test_question_without_choice(self):
+        """
+        When we publish one question without choice, it should not show
+        """
+        question = create_question("pregunta 2", -10, False)
+        response = self.client.get(reverse("polls:index"))
+        self.assertQuerysetEqual(response.context["latest_question_list"], [])
+        self.assertContains(response, "No polls are available")
+
+    def test_question_with_choice(self):
+        """
+        When we publish one question with choice, it should not show
+        """
+        question = create_question("pregunta 2", -10, True)
+        response = self.client.get(reverse("polls:index"))
+        self.assertQuerysetEqual(response.context["latest_question_list"], [question])
+        self.assertEqual(response.status_code, 200)
+
+
+## Test para Detail Views
+class QuestionDetailViewTest(TestCase):
+    def test_future_question(self):
+        """
+        The detail view of a question with a pub_date in the future returns a 404 error not found
+        """
+        future_question = create_question("pregunta 3 - Futuro", 15, True)
+        url = reverse("polls:detail", args=(future_question.id,)) # id y pk para django son lo mismo. 
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_past_question(self):
+        """
+        The detail view of a question with a pub_date in the past displays the question´s text. 
+        """
+        past_question_1 = create_question("pregunta 2", -10, True)
+        url = reverse("polls:detail", args=(past_question_1.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200) 
+        self.assertContains(response, past_question_1.question_text)
+
+    def test_question_without_choice(self):
+        """
+        When we publish one question without choice, it should not show
+        """
+        question = create_question("pregunta 2", -10, False)
+        url = reverse("polls:detail", args=(question.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_question_with_choice(self):
+        """
+        When we publish one question with choice, it should not show
+        """
+        question = create_question("pregunta 2", -10, True)
+        url = reverse("polls:detail", args=(question.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, question.question_text)
+
+
+class QuestionResultViewTest(TestCase):
+    def test_future_question_results(self):
+        """
+        The results view of a question with a pub_date in the future returns a 404 error not found
+        """
+        future_question = create_question("pregunta 3 - Futuro", 15, True)
+        url = reverse("polls:results", args=(future_question.id,)) 
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_past_question_results(self):
+        """
+        The results view of a question with a pub_date in the past displays the question's text. 
+        """
+        past_question_1 = create_question("pregunta 2", -10, True)
+        url = reverse("polls:results", args=(past_question_1.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, past_question_1.question_text)
+
+    def test_question_without_choice(self):
+        """
+        When we publish one question without choice, it should not show
+        """
+        question = create_question("pregunta 2", -10, False)
+        url = reverse("polls:results", args=(question.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_question_with_choice(self):
+        """
+        When we publish one question with choice, it should not show
+        """
+        question = create_question("pregunta 2", -10, True)
+        url = reverse("polls:results", args=(question.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, question.question_text)
+```
+---------------------------------------------------------------
+
+## Agregando estilos a nuestro proyecto: 
+
+Los estilos se agregan mediante archivos estáticos (CSS, JS e imagenes) para poder hacer una Web App completa. 
+
+Disclaimer: Esto en realidad ya es una tarea del Frontend Developer pero un buen backend debe conocer algo de Frontend también. Por lo que esto es un plus a nuestro conocimiento. 
+
+
+
+
+
 
 
 
